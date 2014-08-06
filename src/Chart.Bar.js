@@ -45,6 +45,10 @@
 			//Expose options as a scope variable here so we can access it in the ScaleClass
 			var options = this.options;
 
+			// Labels
+			this.options.xAxisLabel = data.xAxisLabel || false;
+			this.options.yAxisLabel = data.yAxisLabel || false;
+
 			this.ScaleClass = Chart.Scale.extend({
 				offsetGridLines : true,
 				calculateBarX : function(datasetCount, datasetIndex, barIndex){
@@ -214,7 +218,9 @@
 				showLabels : this.options.scaleShowLabels,
 				valueCustomMaxWidth : this.options.scaleValueCustomMaxWidth,
 				valueMaxWidth : this.options.scaleValueMaxWidth,
-				display : this.options.showScale
+				display : this.options.showScale,
+				xAxisLabel: this.options.xAxisLabel,
+				yAxisLabel: this.options.yAxisLabel
 			};
 
 			if (this.options.scaleOverride){
