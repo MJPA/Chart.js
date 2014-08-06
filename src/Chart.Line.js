@@ -197,6 +197,8 @@
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding: (this.options.showScale) ? 0 : this.options.pointDotRadius + this.options.pointDotStrokeWidth,
 				showLabels : this.options.scaleShowLabels,
+				valueCustomMaxWidth : this.options.scaleValueCustomMaxWidth,
+				valueMaxWidth : this.options.scaleValueMaxWidth,
 				display : this.options.showScale
 			};
 

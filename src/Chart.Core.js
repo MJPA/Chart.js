@@ -89,6 +89,12 @@
 			// String - Scale label font colour
 			scaleFontColor: "#666",
 
+			// Boolean - Whether to use a custom maximum value width (valueMaxWidth must be set).
+			scaleValueCustomMaxWidth: false,
+
+			// Number - Maximum width that a given value can use in the graph.
+			scaleValueMaxWidth: 60,
+
 			// Boolean - whether or not the chart should be responsive and resize when the browser does.
 			responsive: false,
 
@@ -411,7 +417,7 @@
 			 	{
 			 	return templateString(valuesObject);
 			 	}
-			 
+
 			var cache = {};
 			function tmpl(str, data){
 				// Figure out if we're getting a template, or if we need to
@@ -1500,7 +1506,8 @@
 			var isRotated = (this.xLabelRotation > 0),
 				// innerWidth = (this.offsetGridLines) ? this.width - offsetLeft - this.padding : this.width - (offsetLeft + halfLabelWidth * 2) - this.padding,
 				innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight),
-				valueWidth = innerWidth/(this.valuesCount - ((this.offsetGridLines) ? 0 : 1)),
+				valueCalculatedWidth = innerWidth/(this.valuesCount - ((this.offsetGridLines) ? 0 : 1)),
+				valueWidth = this.valueCustomMaxWidth ? Math.min(this.valueMaxWidth, valueCalculatedWidth) : valueCalculatedWidth,
 				valueOffset = (valueWidth * index) + this.xScalePaddingLeft;
 
 			if (this.offsetGridLines){
