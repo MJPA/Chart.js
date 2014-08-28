@@ -115,7 +115,7 @@
 				helpers.each(dataset.data,function(dataPoint,index){
 					//Best way to do this? or in draw sequence...?
 					if (helpers.isNumber(dataPoint)){
-					//Add a new point for each piece of data, passing any required data to draw.
+						//Add a new point for each piece of data, passing any required data to draw.
 						var pointPosition;
 						if (!this.scale.animation){
 							pointPosition = this.scale.getPointPosition(index, this.scale.calculateCenterOffset(dataPoint));
