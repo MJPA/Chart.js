@@ -94,6 +94,8 @@
 					points : []
 				};
 
+				datasetObject._custom = dataset._custom || {};
+
 				this.datasets.push(datasetObject);
 
 

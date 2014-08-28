@@ -105,6 +105,8 @@
 					bars : []
 				};
 
+				datasetObject._custom = dataset._custom || {};
+
 				this.datasets.push(datasetObject);
 
 				helpers.each(dataset.data,function(dataPoint,index){
