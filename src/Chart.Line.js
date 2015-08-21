@@ -67,6 +67,11 @@
 
 			this.datasets = [];
 
+
+			// Labels
+			this.options.xAxisLabel = data.xAxisLabel || false;
+			this.options.yAxisLabel = data.yAxisLabel || false;
+
 			//Set up tooltip events on the chart
 			if (this.options.showTooltips){
 				helpers.bindEvents(this, this.options.tooltipEvents, function(evt){
@@ -201,7 +206,9 @@
 				showLabels : this.options.scaleShowLabels,
 				valueCustomMaxWidth : this.options.scaleValueCustomMaxWidth,
 				valueMaxWidth : this.options.scaleValueMaxWidth,
-				display : this.options.showScale
+				display : this.options.showScale,
+				xAxisLabel: this.options.xAxisLabel,
+				yAxisLabel: this.options.yAxisLabel
 			};
 
 			if (this.options.scaleOverride){
