@@ -160,11 +160,11 @@
 				pointIndex = 0;
 			}
 
-			if (fromCenter.distance <= this.scale.drawingArea){
+			//if (fromCenter.distance <= this.scale.drawingArea){
 				helpers.each(this.datasets, function(dataset){
 					activePointsCollection.push(dataset.points[pointIndex]);
 				});
-			}
+			//}
 
 			return activePointsCollection;
 		},
