@@ -89,6 +89,12 @@
 			// String - Scale label font colour
 			scaleFontColor: "#666",
 
+			// Boolean - Whether to use a custom maximum value width (valueMaxWidth must be set).
+			scaleValueCustomMaxWidth: false,
+
+			// Number - Maximum width that a given value can use in the graph.
+			scaleValueMaxWidth: 60,
+
 			// Boolean - whether or not the chart should be responsive and resize when the browser does.
 			responsive: false,
 
@@ -406,12 +412,12 @@
 		//Templating methods
 		//Javascript micro templating by John Resig - source at http://ejohn.org/blog/javascript-micro-templating/
 		template = helpers.template = function(templateString, valuesObject){
-			 // If templateString is function rather than string-template - call the function for valuesObject
-			 if(templateString instanceof Function)
-			 	{
-			 	return templateString(valuesObject);
-			 	}
-			 
+			// If templateString is function rather than string-template - call the function for valuesObject
+			if(templateString instanceof Function)
+			{
+				return templateString(valuesObject);
+			}
+
 			var cache = {};
 			function tmpl(str, data){
 				// Figure out if we're getting a template, or if we need to
@@ -1374,6 +1380,7 @@
 				this.yLabels.push(template(this.templateString,{value:(this.min + (i * this.stepValue)).toFixed(stepDecimalPlaces)}));
 			}
 			this.yLabelWidth = (this.display && this.showLabels) ? longestText(this.ctx,this.font,this.yLabels) : 0;
+			this.yLabelWidth += 40;
 		},
 		addXLabel : function(label){
 			this.xLabels.push(label);
@@ -1478,6 +1485,7 @@
 				if (this.xLabelRotation > 0){
 					this.endPoint -= Math.sin(toRadians(this.xLabelRotation))*originalLabelWidth + 3;
 				}
+				this.endPoint -= 40; // for x axis label
 			}
 			else{
 				this.xLabelWidth = 0;
@@ -1500,7 +1508,8 @@
 			var isRotated = (this.xLabelRotation > 0),
 				// innerWidth = (this.offsetGridLines) ? this.width - offsetLeft - this.padding : this.width - (offsetLeft + halfLabelWidth * 2) - this.padding,
 				innerWidth = this.width - (this.xScalePaddingLeft + this.xScalePaddingRight),
-				valueWidth = innerWidth/(this.valuesCount - ((this.offsetGridLines) ? 0 : 1)),
+				valueCalculatedWidth = innerWidth/(this.valuesCount - ((this.offsetGridLines) ? 0 : 1)),
+				valueWidth = this.valueCustomMaxWidth ? Math.min(this.valueMaxWidth, valueCalculatedWidth) : valueCalculatedWidth,
 				valueOffset = (valueWidth * index) + this.xScalePaddingLeft;
 
 			if (this.offsetGridLines){
@@ -1601,6 +1610,29 @@
 					ctx.restore();
 				},this);
 
+				// Print X axis
+				if (this.xAxisLabel) {
+					ctx.save();
+					var yPos = this.endPoint + 40;
+					ctx.font = this.font;
+					ctx.textAlign = "center";
+					ctx.textBaseline = "top";
+					ctx.translate(this.xScalePaddingLeft + ((this.width - this.xScalePaddingLeft) / 2), yPos);
+					ctx.fillText(this.xAxisLabel, 0, 0);
+					ctx.restore();
+				}
+
+				// Print Y axis
+				if (this.yAxisLabel) {
+					ctx.save();
+					ctx.font = this.font;
+					ctx.textAlign = "center";
+					ctx.textBaseline = "top";
+					ctx.translate(0, this.height / 2);
+					ctx.rotate(toRadians(90)*-1);
+					ctx.fillText(this.yAxisLabel, 0, 0);
+					ctx.restore();
+				}
 			}
 		}
 
@@ -1669,7 +1701,7 @@
 
 			// Get maximum radius of the polygon. Either half the height (minus the text width) or half the width.
 			// Use this to calculate the offset + change. - Make sure L/R protrusion is at least 0 to stop issues with centre points
-			var largestPossibleRadius = min([(this.height/2 - this.pointLabelFontSize - 5), this.width/2]),
+			var largestPossibleRadius = min([(this.height/2 - this.pointLabelFontSize - 10), this.width/2]),
 				pointPosition,
 				i,
 				textWidth,
@@ -1951,6 +1983,10 @@
 			//Expose options as a scope variable here so we can access it in the ScaleClass
 			var options = this.options;
 
+			// Labels
+			this.options.xAxisLabel = data.xAxisLabel || false;
+			this.options.yAxisLabel = data.yAxisLabel || false;
+
 			this.ScaleClass = Chart.Scale.extend({
 				offsetGridLines : true,
 				calculateBarX : function(datasetCount, datasetIndex, barIndex){
@@ -2006,6 +2042,8 @@
 					strokeColor : dataset.strokeColor,
 					bars : []
 				};
+
+				datasetObject._custom = dataset._custom || {};
 
 				this.datasets.push(datasetObject);
 
@@ -2118,7 +2156,11 @@
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding : (this.options.showScale) ? 0 : (this.options.barShowStroke) ? this.options.barStrokeWidth : 0,
 				showLabels : this.options.scaleShowLabels,
-				display : this.options.showScale
+				valueCustomMaxWidth : this.options.scaleValueCustomMaxWidth,
+				valueMaxWidth : this.options.scaleValueMaxWidth,
+				display : this.options.showScale,
+				xAxisLabel: this.options.xAxisLabel,
+				yAxisLabel: this.options.yAxisLabel
 			};
 
 			if (this.options.scaleOverride){
@@ -2200,6 +2242,7 @@
 
 
 }).call(this);
+
 (function(){
 	"use strict";
 
@@ -2453,6 +2496,11 @@
 
 			this.datasets = [];
 
+
+			// Labels
+			this.options.xAxisLabel = data.xAxisLabel || false;
+			this.options.yAxisLabel = data.yAxisLabel || false;
+
 			//Set up tooltip events on the chart
 			if (this.options.showTooltips){
 				helpers.bindEvents(this, this.options.tooltipEvents, function(evt){
@@ -2479,6 +2527,8 @@
 					pointStrokeColor : dataset.pointStrokeColor,
 					points : []
 				};
+
+				datasetObject._custom = dataset._custom || {};
 
 				this.datasets.push(datasetObject);
 
@@ -2583,7 +2633,11 @@
 				gridLineColor : (this.options.scaleShowGridLines) ? this.options.scaleGridLineColor : "rgba(0,0,0,0)",
 				padding: (this.options.showScale) ? 0 : this.options.pointDotRadius + this.options.pointDotStrokeWidth,
 				showLabels : this.options.scaleShowLabels,
-				display : this.options.showScale
+				valueCustomMaxWidth : this.options.scaleValueCustomMaxWidth,
+				valueMaxWidth : this.options.scaleValueMaxWidth,
+				display : this.options.showScale,
+				xAxisLabel: this.options.xAxisLabel,
+				yAxisLabel: this.options.yAxisLabel
 			};
 
 			if (this.options.scaleOverride){
@@ -2727,6 +2781,7 @@
 
 
 }).call(this);
+
 (function(){
 	"use strict";
 
@@ -3085,12 +3140,14 @@
 					points : []
 				};
 
+				datasetObject._custom = dataset._custom || {};
+
 				this.datasets.push(datasetObject);
 
 				helpers.each(dataset.data,function(dataPoint,index){
 					//Best way to do this? or in draw sequence...?
 					if (helpers.isNumber(dataPoint)){
-					//Add a new point for each piece of data, passing any required data to draw.
+						//Add a new point for each piece of data, passing any required data to draw.
 						var pointPosition;
 						if (!this.scale.animation){
 							pointPosition = this.scale.getPointPosition(index, this.scale.calculateCenterOffset(dataPoint));
@@ -3135,11 +3192,11 @@
 				pointIndex = 0;
 			}
 
-			if (fromCenter.distance <= this.scale.drawingArea){
+			//if (fromCenter.distance <= this.scale.drawingArea){
 				helpers.each(this.datasets, function(dataset){
 					activePointsCollection.push(dataset.points[pointIndex]);
 				});
-			}
+			//}
 
 			return activePointsCollection;
 		},
